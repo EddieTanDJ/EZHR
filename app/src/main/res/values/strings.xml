@@ -1,0 +1,90 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">EZHR</string>
+    <string name="attendance">Attendance</string>
+    <string name="attendance_history">History</string>
+    <string name="leave">Leaves</string>
+    <string name="claims">Claims</string>
+    <string name="action_logout">Logout</string>
+    <string name="title_activity_maps">MapsActivity</string>
+
+    <string name="attendance_clocking">Clock In / Out</string>
+    <string-array name="claim_types">
+        <item>Medical</item>
+        <item>Transportation</item>
+        <item>Food</item>
+        <item>Others</item>
+    </string-array>
+
+    <!--    Leave and Claims Section -->
+    <string name="ApplyForLeave">Apply leave</string>
+    <string name="addDocument">Add supporting documents</string>
+    <string name="submit">Submit</string>
+    <string name="apply_for_claims">Apply For Claims</string>
+    <string name="claims_status">Claims Status</string>
+    <string name="leave_status">Leave Status</string>
+    <!--    Login Section -->
+    <string name="enter_your_email">Email</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="login">Login</string>
+    <string name="enter_your_password">Password</string>
+    <!--  Attendance Section -->
+    <string name="attendance_title">Attendance Check-In/Out</string>
+    <string name="current_time_text">Current Time:</string>
+    <string name="qr_code_text">Scan QR code to Check-in/Check-out</string>
+    <string name="check_in_time_text">Check-In Time:</string>
+    <string name="check_in_status_text">Not Checked In</string>
+    <string name="check_out_time_text">Check-Out Time:</string>
+    <string name="check_out_status_text">Not Checked Out</string>
+    <string name="clock_in_clock_out">Clock In / Clock Out</string>
+
+    <!--  Manager Attendance Section -->
+    <string name="attendance_date">Date</string>
+    <string name="attendance_status">Status</string>
+    <string name="employee_name">Name</string>
+    <string name="attendance_history_title">Attendance History</string>
+    <string name="email_icon">Email Icon</string>
+
+    <!-- Profile Section-->
+    <string name="profile">Profile</string>
+    <string name="change_password">Change Password</string>
+    <string name="log_out">Log Out</string>
+    <!--    Edit Password Section -->
+    <string name="confirm_password">Confirm Password</string>
+    <string name="new_password">New Password</string>
+    <string name="current_password">Current password</string>
+    <string name="balances">Balance</string>
+    <string name="forget_password">Forget Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="back">BACK</string>
+
+    <string-array name="leaveTypes">
+        <item>no selection</item>
+        <item>Annual</item>
+        <item>Medical</item>
+        <item>Maternity</item>
+        <item>Compassionate</item>
+    </string-array>
+
+    <string-array name="Balances">
+        <item>Annual : 10 days</item>
+        <item>Medical: 10 days</item>
+        <item>Compassionate: 10 days</item>
+        <item>Maternal: 10 days</item>
+    </string-array>
+
+    <string name="dialogTitle">Submit leave application</string>
+
+    <string name="clock_in">Clock In</string>
+    <string name="clock_out">Clock Out</string>
+    <string name="clock_my_time">Clock time</string>
+    <string name="attendance_action">Actions</string>
+    <string name="apply">Apply</string>
+    <string name="status">Status</string>
+    <string name="qr_code">Qr_code</string>
+    <string name="select_leave_type">Select leave type</string>
+    <string name="start_leave_date">Start leave date</string>
+    <string name="set_start_date">Set Start Date</string>
+    <string name="end_leave_date">End leave date</string>
+    <string name="set_end_date">Set End date</string>
+
+</resources>

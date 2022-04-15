@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation_Manager"
+    app:startDestination="@+id/homeManagerFragment">
+
+    <fragment
+        android:id="@+id/homeManagerFragment"
+        android:name="com.example.ezhr.fragments.manager.ManagerHomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_manager_home">
+        <action
+            android:id="@+id/action_homeManagerFragment_to_attendanceManagerFragment"
+            app:destination="@id/attendanceManagerFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeManagerFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeManagerFragment_to_claimsManagerFragment"
+            app:destination="@id/claimsManagerFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeManagerFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeManagerFragment_to_leaveManagerFragment"
+            app:destination="@id/leaveManagerFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeManagerFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeManagerFragment_to_managerViewEmployeeLeaveFragment"
+            app:destination="@id/managerViewEmployeeLeaveFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeManagerFragment"
+            app:popUpToSaveState="true" />
+    </fragment>
+
+    <!--    Attendance Fragment-->
+    <fragment
+        android:id="@+id/attendanceManagerFragment"
+        android:name="com.example.ezhr.fragments.manager.ManagerAttendanceFragment"
+        android:label="Attendance"
+        tools:layout="@layout/fragment_manager_attendance" />
+    <!--    Claims Fragment -->
+    <fragment
+        android:id="@+id/claimsManagerFragment"
+        android:name="com.example.ezhr.fragments.manager.ManagerClaimsFragment"
+        android:label="Claims"
+        tools:layout="@layout/fragment_manager_claims" />
+    <!--    Leave Fragment -->
+    <fragment
+        android:id="@+id/leaveManagerFragment"
+        android:name="com.example.ezhr.fragments.manager.ManagerLeaveFragment"
+        android:label="Leaves"
+        tools:layout="@layout/fragment_manager_leave" />
+    <!--    Profile Fragment -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.ezhr.fragments.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_editPasswordFragment"
+            app:destination="@id/editPasswordFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToSaveState="true" />
+    </fragment>
+    <!--    Edit Password Fragment -->
+    <fragment
+        android:id="@+id/editPasswordFragment"
+        android:name="com.example.ezhr.fragments.EditPasswordFragment"
+        android:label="Edit Password"
+        tools:layout="@layout/fragment_edit_password" />
+
+    <!--    View Employee Leave Activity -->
+    <fragment
+        android:id="@+id/managerViewEmployeeLeaveFragment"
+        android:name="com.example.ezhr.fragments.manager.ManagerViewEmployeeLeaveFragment"
+        android:label="View Employees Leave"
+        tools:layout="@layout/fragment_manager_view_employee_leave" />
+</navigation>

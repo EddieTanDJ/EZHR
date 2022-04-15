@@ -1,0 +1,14 @@
+<resources>
+    <attr name="colorColor75" format="color" />
+    <attr name="colorOnColor75" format="color" />
+    <attr name="colorColor75Container" format="color" />
+    <attr name="colorOnColor75Container" format="color" />
+    <attr name="harmonizeColor75" format="boolean" />
+    <attr name="colorColor18" format="color" />
+    <attr name="colorOnColor18" format="color" />
+    <attr name="colorColor18Container" format="color" />
+    <attr name="colorOnColor18Container" format="color" />
+    <attr name="harmonizeColor18" format="boolean" />
+    <attr name="colorInversePrimary" format="color" />
+    <attr name="colorShadow" format="color" />
+</resources>

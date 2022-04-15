@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/homeFragment">
+
+    <!--    Home Fragment -->
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.ezhr.fragments.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_homeFragment_to_attendanceFragment"
+            app:destination="@id/attendanceFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+        />
+        <action
+            android:id="@+id/action_homeFragment_to_claimsFragment"
+            app:destination="@id/claimsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_balanceLeaveFragment"
+            app:destination="@id/balanceLeaveFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_applyLeaveFragment"
+            app:destination="@id/applyLeaveFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_homeFragment_to_leaveStatusFragment"
+            app:destination="@id/leaveStatusFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_claimsBalanceFragment"
+            app:destination="@id/claimsBalanceFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_applyClaimFragment"
+            app:destination="@id/applyClaimFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_claimsStatusFragment"
+            app:destination="@id/claimsStatusFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_attendanceMapFragment"
+            app:destination="@id/attendanceMap"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+        <action
+            android:id="@+id/action_homeFragment_to_attendanceHistoryFragment"
+            app:destination="@id/attendanceHistoryFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/homeFragment"
+            app:popUpToSaveState="true" />
+    </fragment>
+
+    <!--    Attendance Fragment-->
+    <fragment
+        android:id="@+id/attendanceFragment"
+        android:name="com.example.ezhr.fragments.AttendanceFragment"
+        android:label="Attendance"
+        tools:layout="@layout/fragment_attendance">
+        <action
+            android:id="@+id/action_attendanceFragment_to_attendanceHistoryFragment"
+            app:destination="@id/attendanceHistoryFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_attendanceFragment_to_attendanceMap"
+            app:destination="@id/attendanceMap"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--    Claims Fragment -->
+    <fragment
+        android:id="@+id/claimsFragment"
+        android:name="com.example.ezhr.fragments.ClaimsFragment"
+        android:label="Claims"
+        tools:layout="@layout/fragment_claims">
+        <action
+            android:id="@+id/action_claimsFragment_to_applyClaimFragment"
+            app:destination="@id/applyClaimFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_claimsFragment_to_claimsStatusFragment"
+            app:destination="@id/claimsStatusFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_claimsFragment_to_claimsBalanceFragment"
+            app:destination="@id/claimsBalanceFragment" />
+    </fragment>
+
+    <!--    Leave Fragment -->
+    <fragment
+        android:id="@+id/leaveFragment"
+        android:name="com.example.ezhr.fragments.LeaveFragment"
+        android:label="Leaves"
+        tools:layout="@layout/fragment_leave">
+        <action
+            android:id="@+id/action_leaveFragment_to_applyLeaveFragment"
+            app:destination="@id/applyLeaveFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_leaveFragment_to_leaveStatusFragment"
+            app:destination="@id/leaveStatusFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_leaveFragment_to_balanceLeaveFragment"
+            app:destination="@id/balanceLeaveFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--    Profile Fragment -->
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.ezhr.fragments.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_editPasswordFragment"
+            app:destination="@id/editPasswordFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+
+    <!--    Edit Password Fragment -->
+    <fragment
+        android:id="@+id/editPasswordFragment"
+        android:name="com.example.ezhr.fragments.EditPasswordFragment"
+        android:label="Edit Password"
+        tools:layout="@layout/fragment_edit_password" />
+
+    <!--    Apply for leave fragment -->
+    <fragment
+        android:id="@+id/applyLeaveFragment"
+        android:name="com.example.ezhr.fragments.leave.ApplyLeaveFragment"
+        android:label="Apply Leave"
+        tools:layout="@layout/fragment_apply_leave">
+        <action
+            android:id="@+id/action_applyLeaveFragment_to_leaveFragment"
+            app:destination="@id/leaveFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--    Leave Status Fragment -->
+    <fragment
+        android:id="@+id/leaveStatusFragment"
+        android:name="com.example.ezhr.fragments.leave.LeaveStatusFragment"
+        android:label="Leave Status"
+        tools:layout="@layout/fragment_leave_status" />
+
+    <!-- Leave Balance Fragment  -->
+    <fragment
+        android:id="@+id/balanceLeaveFragment"
+        android:name="com.example.ezhr.fragments.leave.BalanceLeaveFragment"
+        android:label="Leave Balance"
+        tools:layout="@layout/fragment_balance_leave" />
+
+    <!--    Apply Claim Fragment -->
+    <fragment
+        android:id="@+id/applyClaimFragment"
+        android:name="com.example.ezhr.fragments.claims.ApplyClaimFragment"
+        android:label="Apply Claims"
+        tools:layout="@layout/fragment_apply_claim">
+        <action
+            android:id="@+id/action_applyClaimFragment_to_claimsFragment"
+            app:destination="@id/claimsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--    Claims Status -->
+    <fragment
+        android:id="@+id/claimsStatusFragment"
+        android:name="com.example.ezhr.fragments.claims.ClaimStatusFragment"
+        android:label="Claims Status"
+        tools:layout="@layout/fragment_claims_status">
+        <action
+            android:id="@+id/action_claimsStatusFragment_to_claimsDetailFragment"
+            app:destination="@id/claimsDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--    Claims Balance -->
+    <fragment
+        android:id="@+id/claimsBalanceFragment"
+        android:name="com.example.ezhr.fragments.claims.ClaimBalanceFragment"
+        android:label="Claims Balance"
+        tools:layout="@layout/fragment_claims_balance" />
+
+    <!--    Claims Details -->
+    <fragment
+        android:id="@+id/claimsDetailFragment"
+        android:name="com.example.ezhr.fragments.claims.ClaimsDetailFragment"
+        android:label="Claims Details"
+        tools:layout="@layout/fragment_claims_detail">
+        <action
+            android:id="@+id/action_claimsDetailFragment_to_claimsEditFragment"
+            app:destination="@id/claimsEditFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <!--    Edit Claim -->
+    <fragment
+        android:id="@+id/claimsEditFragment"
+        android:name="com.example.ezhr.fragments.claims.ClaimEditFragment"
+        android:label="Edit Claim"
+        tools:layout="@layout/fragment_claims_edit">
+        <action
+            android:id="@+id/action_claimsEditFragment_to_claimsStatusFragment"
+            app:destination="@id/claimsStatusFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/attendanceHistoryFragment"
+        android:name="com.example.ezhr.fragments.attendance.AttendanceHistoryFragment"
+        android:label="Attendance History"
+        tools:layout="@layout/fragment_attendance_history" />
+    <fragment
+        android:id="@+id/attendanceQRCodeFragment"
+        android:name="com.example.ezhr.fragments.attendance.AttendanceQRCodeFragment"
+        android:label="Check In / Out"
+        tools:layout="@layout/fragment_attendance_qr_code" />
+
+    <fragment
+        android:id="@+id/attendanceMap"
+        android:name="com.example.ezhr.fragments.attendance.AttendanceMapFragment"
+        android:label="Check In / Out"
+        tools:layout="@layout/fragment_attendance_map">
+        <action
+            android:id="@+id/action_attendanceMap_to_attendanceQRCodeFragment"
+            app:destination="@id/attendanceQRCodeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+
+</navigation>

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "80816694337",
+    "firebase_url": "https://ezhr-6245e-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "ezhr-6245e",
+    "storage_bucket": "ezhr-6245e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:80816694337:android:301d07c39ce9fd1041d2c0",
+        "android_client_info": {
+          "package_name": "com.example.ezhr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "80816694337-kuc9e8jdkvfk8148c10fd9ekvreh0oau.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZR22_pK9tnVTpE5pSy9VZ5HXkiX-a16E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "80816694337-kuc9e8jdkvfk8148c10fd9ekvreh0oau.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

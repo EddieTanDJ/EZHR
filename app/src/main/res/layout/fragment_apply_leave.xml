@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/selectLeaveHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:paddingLeft="10dp"
+            android:text="@string/select_leave_type"
+            android:textSize="20sp" />
+
+
+        <Spinner
+            android:id="@+id/selectLeaveSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/selectLeaveHeader"
+            android:background="@drawable/spinner_background"
+            android:minHeight="48dp"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="10dp" />
+
+        <Button
+            android:id="@+id/leaveBalanceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#09aeae"
+            android:text="Leave Balances" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            android:paddingTop="20dp">
+
+            <TextView
+                android:id="@+id/startLeaveDate"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/form_input_backgound"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="@string/start_leave_date"
+                android:inputType="datetime|textPersonName"
+                android:minHeight="48dp"
+                android:textSize="15sp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/setStartLeaveButton"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:backgroundTint="#044cd0"
+                android:text="@string/set_start_date"
+                android:textColorHint="#8F5959"
+                android:textColorLink="#714747"
+                app:iconPadding="0dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="20dp">
+
+            <TextView
+                android:id="@+id/endLeaveDate"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/form_input_backgound"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="@string/end_leave_date"
+                android:inputType="textPersonName"
+                android:minHeight="48dp"
+                android:textSize="15sp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/setEndLeaveButton"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:backgroundTint="#044cd0"
+                android:text="@string/set_end_date" />
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/textView31"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="40dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="15px"
+            android:text="@string/addDocument"
+            android:textSize="20sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/buttonAddDocument"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#7a8793"
+                android:padding="20dp"
+                android:src="@drawable/ic_attach" />
+
+            <TextView
+                android:id="@+id/textViewUploadedFile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="0" />
+
+            <ImageView
+                android:id="@+id/imageViewCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="0"
+                android:visibility="invisible"
+                app:srcCompat="@drawable/clear" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/submitButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:backgroundTint="#76BA1B"
+            android:padding="10dp"
+            android:text="@string/submit" />
+    </LinearLayout>
+</ScrollView>

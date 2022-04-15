@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/homeFragment"
+        android:checkable="true"
+        android:icon="@drawable/ic_baseline_home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/profileFragment"
+        android:checkable="true"
+        android:icon="@drawable/ic_baseline_person"
+        android:title="Profile" />
+
+
+    <item
+        android:id="@+id/attendance_item"
+        android:title="@string/attendance">
+        <menu>
+            <item
+                android:id="@+id/attendanceMap"
+                android:checkable="true"
+                android:icon="@drawable/ic_baseline_access_time"
+                android:title="@string/clock_my_time"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/attendanceHistoryFragment"
+                android:checkable="true"
+                android:icon="@drawable/ic_baseline_history"
+                android:title="@string/attendance_history"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/leaves_item"
+        android:title="@string/leave">
+        <menu>
+            <item
+                android:id="@+id/applyLeaveFragment"
+                android:checkable="true"
+                android:icon="@drawable/ic_baseline_post_add_24"
+                android:title="@string/apply"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/leaveStatusFragment"
+                android:checkable="true"
+                android:icon="@drawable/ic_baseline_pending_actions_24"
+                android:title="@string/status"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/balanceLeaveFragment"
+                android:checkable="true"
+                android:icon="@drawable/ic_baseline_notes_24"
+                android:title="@string/balances"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/claims_item"
+        android:title="@string/claims">
+        <menu>
+            <item
+                android:id="@+id/applyClaimFragment"
+                android:checkable="true"
+                android:icon="@drawable/ic_baseline_post_add_24"
+                android:title="@string/apply"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/claimsStatusFragment"
+                android:checkable="true"
+                android:icon="@drawable/ic_baseline_pending_actions_24"
+                android:title="@string/status"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/claimsBalanceFragment"
+                android:checkable="true"
+                android:icon="@drawable/ic_baseline_notes_24"
+                android:title="@string/balances"
+                app:showAsAction="ifRoom" />
+        </menu>
+    </item>
+
+</menu>
