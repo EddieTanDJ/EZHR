@@ -5,15 +5,15 @@ This mobile application is to introduce a lightweight HR system to streamline HR
 * Claims: This feature allows employees to submit a claim for reimbursement and manager approve it.
 
 ## EzHR app done by :
-Muhammad Abdurraheem Bin Abdul Hamid (1501918)
+Muhammad Abdurraheem Bin Abdul Hamid
 
-Jimeno Johanna Charissa Mortel (2002171)
+Jimeno Johanna Charissa Mortel
 
-Eddie Tan Dejun (2002226)
+Eddie Tan Dejun
 
-Nicholas Bingei (2002983)
+Nicholas Bingei
 
-Ter Kai Siang (2001476)
+Ter Kai Siang
 
 ## How to use :
 1. Clone or download the project
