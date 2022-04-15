@@ -35,14 +35,3 @@ jobs:
 
       - name: Run Unit Test with Gradle
         run: ./gradlew test
-        
-      - name: Sends message to Slack channel
-        if: always()
-        uses: 8398a7/action-slack@v3.9.0
-        with:
-          status: ${{ job.status }}
-          author_name: P1_4_Intergration
-          fields: repo,commit,message,author # default: repo,commit
-        env:
-          # Need dedicated webhook URL that receives and post to a specific channel
-          SLACK_WEBHOOK_URL: https://hooks.slack.com/services/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
