@@ -1,19 +1,28 @@
 package com.example.ezhr.fragments.claims
-
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresPermission
+import androidx.appcompat.app.AlertDialog
+import androidx.camera.core.impl.utils.ContextUtil.getApplicationContext
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
@@ -22,10 +31,12 @@ import com.example.ezhr.EZHRApp
 import com.example.ezhr.R
 import com.example.ezhr.data.Claim
 import com.example.ezhr.databinding.FragmentApplyClaimBinding
+import com.example.ezhr.fragments.attendance.AttendanceMapFragment
 import com.example.ezhr.repository.ClaimApplicationManager
 import com.example.ezhr.repository.Draft
 import com.example.ezhr.viewmodel.ApplyClaimViewModel
 import com.example.ezhr.viewmodel.ApplyClaimViewModelFactory
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ml.vision.FirebaseVision
@@ -53,7 +64,7 @@ class ApplyClaimFragment : Fragment() {
     lateinit var claimManager: ClaimApplicationManager
     var userID = Firebase.auth.currentUser?.uid
     private var claimTypeIndex = 0
-
+    private val CAMERA_REQUEST_CODE = 233
     private val GALLERY_REQUEST_CODE = 234
     private lateinit var uploadedFileURI: Uri
     private lateinit var addDocumentBtn: ImageButton
@@ -247,7 +258,7 @@ class ApplyClaimFragment : Fragment() {
     }
 
     /**
-     * Load all data from each claim category csv into respective lists
+     * Load all data from each claim category csv into respective lists for the ML
      */
     private fun getDatasets() {
         var foodRows: List<Array<String?>> = ArrayList()
@@ -283,9 +294,6 @@ class ApplyClaimFragment : Fragment() {
         for (i in transportRows.indices) {
             transportList.add(transportRows[i][0].toString())
         }
-
-        Log.d(TAG, foodList.toString())
-        Log.d(TAG, transportList.toString())
     }
 
     /**
@@ -438,6 +446,17 @@ class ApplyClaimFragment : Fragment() {
                 markButtonDisabled(addDocumentBtn, fileUri)
             }
         }
+        if (requestCode == CAMERA_REQUEST_CODE
+            && resultCode == Activity.RESULT_OK
+        ) {
+            // Get the Uri of data
+            val fileUri = mUri
+            if (fileUri != null) {
+                setCurrentFileURI(fileUri)
+                markButtonDisabled(addDocumentBtn, fileUri)
+            }
+        }
+
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
             if (data != null) {
@@ -537,16 +556,91 @@ class ApplyClaimFragment : Fragment() {
      * Open up image gallery
      */
     private fun selectImageFromGallery() {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(
-            Intent.createChooser(
-                intent,
-                "Please select..."
-            ),
-            GALLERY_REQUEST_CODE
+        startDialog()
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun startDialog() {
+        val myAlertDialog: AlertDialog.Builder = AlertDialog.Builder(
+            requireContext()
         )
+        myAlertDialog.setTitle("Upload Pictures")
+        myAlertDialog.setMessage("How do you want to upload your picture?")
+        myAlertDialog.setPositiveButton("Gallery",
+            DialogInterface.OnClickListener { arg0, arg1 ->
+            val galleryIntent = Intent()
+            galleryIntent.type = "image/*"
+            galleryIntent.action = Intent.ACTION_GET_CONTENT
+            startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE)
+            })
+        myAlertDialog.setNegativeButton("Camera",
+            DialogInterface.OnClickListener { arg0, arg1 ->
+                requestCameraPermission()
+                if (checkPermission()) {
+                    Log.d(TAG, "Permission granted")
+                    val capturedImage = File(getApplicationContext(requireContext()).getExternalFilesDir(""), "Claims_${System.currentTimeMillis()}.jpg")
+                    if(capturedImage.exists()) {
+                        capturedImage.delete()
+                    }
+                    capturedImage.createNewFile()
+                    mUri = if(Build.VERSION.SDK_INT >= 24){
+                        FileProvider.getUriForFile(requireContext(), "com.example.ezhr.fileprovider", capturedImage)
+                    } else {
+                        Uri.fromFile(capturedImage)
+                    }
+                    Log.d("TAG", "mUri: $mUri.toString()")
+                    val intent = Intent("android.media.action.IMAGE_CAPTURE")
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, mUri)
+                    startActivityForResult(intent, CAMERA_REQUEST_CODE)
+                }
+                else {
+                    Log.d(TAG, "In Alert Dialog, Permission denied")
+                    requestCameraPermission()
+                    showErrorSnackbar()
+                }
+            })
+        myAlertDialog.show()
+    }
+
+    /**
+     * request fine and coarse permission required by the Gmaps
+     */
+    private fun requestCameraPermission() {
+        if (!hasPermissions(requireContext())) {
+            requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
+        }
+    }
+
+    /**
+     * Check if permission is already granted
+     */
+    private fun checkPermission() : Boolean {
+        val result = PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(requireContext(),
+            Manifest.permission.CAMERA)
+        Log.d(TAG, "Check Permission granted: $result")
+        return result
+    }
+
+    /**
+     * Show a snackbar to the settings if permission denied
+     */
+    private fun showErrorSnackbar() { //semi important error method
+        view?.let {
+            Snackbar.make(it, "App permission required", Snackbar.LENGTH_LONG)
+                .setAction("Settings") {
+                    // Responds to click on the action
+                    val intent = Intent()
+                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    val uri = Uri.fromParts("package", requireActivity().packageName, null)
+                    intent.data = uri
+                    this.startActivity(intent)
+                }.show()
+        }
+    }
+
+    /** Convenience method used to check if all permissions required by this app are granted */
+    private fun hasPermissions(context: Context) = PERMISSIONS_REQUIRED.all {
+        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
 
     companion object {
@@ -555,7 +649,10 @@ class ApplyClaimFragment : Fragment() {
          * this fragment using the provided parameters.
          * @return A new instance of fragment.
          */
+        private const val PERMISSIONS_REQUEST_CODE = 10
+        private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
         private val TAG = ApplyClaimFragment::class.simpleName
+        private var mUri: Uri? = null
         fun newInstance(): ApplyClaimFragment {
             return ApplyClaimFragment()
         }

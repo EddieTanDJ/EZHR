@@ -58,7 +58,9 @@ class ApplyClaimRepository {
         val mutableLiveData = MutableLiveData<Boolean>()
 
         database = FirebaseDatabase.getInstance().getReference("claims")
+        // Save claim data to firebase database
         var newDatabaseRef = database.push()
+        // Get the current key in firebase database for the new claims
         val currentClaimID = newDatabaseRef.key.toString()
 
         if (uploadedFileURI != null) {
@@ -95,6 +97,11 @@ class ApplyClaimRepository {
      */
     fun getCurrentClaimBalance(claimType: String): MutableLiveData<Double> {
         val mutableLiveData = MutableLiveData<Double>()
+
+        /**
+         * Returns a new read-only map with the specified contents,
+         * given as a list of pairs where the first value is the key and the second is the value.
+         */
         val claimBalance = mapOf(
             "Food" to "food_balance",
             "Medical" to "medical_balance",
