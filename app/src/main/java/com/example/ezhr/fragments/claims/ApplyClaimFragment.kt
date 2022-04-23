@@ -5,22 +5,18 @@ import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.impl.utils.ContextUtil.getApplicationContext
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
@@ -31,12 +27,10 @@ import com.example.ezhr.EZHRApp
 import com.example.ezhr.R
 import com.example.ezhr.data.Claim
 import com.example.ezhr.databinding.FragmentApplyClaimBinding
-import com.example.ezhr.fragments.attendance.AttendanceMapFragment
 import com.example.ezhr.repository.ClaimApplicationManager
 import com.example.ezhr.repository.Draft
 import com.example.ezhr.viewmodel.ApplyClaimViewModel
 import com.example.ezhr.viewmodel.ApplyClaimViewModelFactory
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ml.vision.FirebaseVision
@@ -49,6 +43,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
@@ -60,7 +56,7 @@ import java.util.*
  * Use the [ApplyClaimFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ApplyClaimFragment : Fragment() {
+class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
     lateinit var claimManager: ClaimApplicationManager
     var userID = Firebase.auth.currentUser?.uid
     private var claimTypeIndex = 0
@@ -139,7 +135,7 @@ class ApplyClaimFragment : Fragment() {
 
         addDocumentBtn = binding.buttonAddDocument
         addDocumentBtn.setOnClickListener {
-            selectImageFromGallery()
+            selectImage()
         }
 
         binding.buttonSave.setOnClickListener {
@@ -555,10 +551,13 @@ class ApplyClaimFragment : Fragment() {
     /**
      * Open up image gallery
      */
-    private fun selectImageFromGallery() {
+    private fun selectImage() {
         startDialog()
     }
 
+    /**
+     * Allow user to choose between camera and gallery
+     */
     @SuppressLint("RestrictedApi")
     private fun startDialog() {
         val myAlertDialog: AlertDialog.Builder = AlertDialog.Builder(
@@ -576,71 +575,74 @@ class ApplyClaimFragment : Fragment() {
         myAlertDialog.setNegativeButton("Camera",
             DialogInterface.OnClickListener { arg0, arg1 ->
                 requestCameraPermission()
-                if (checkPermission()) {
-                    Log.d(TAG, "Permission granted")
-                    val capturedImage = File(getApplicationContext(requireContext()).getExternalFilesDir(""), "Claims_${System.currentTimeMillis()}.jpg")
-                    if(capturedImage.exists()) {
-                        capturedImage.delete()
-                    }
-                    capturedImage.createNewFile()
-                    mUri = if(Build.VERSION.SDK_INT >= 24){
-                        FileProvider.getUriForFile(requireContext(), "com.example.ezhr.fileprovider", capturedImage)
-                    } else {
-                        Uri.fromFile(capturedImage)
-                    }
-                    Log.d("TAG", "mUri: $mUri.toString()")
-                    val intent = Intent("android.media.action.IMAGE_CAPTURE")
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, mUri)
-                    startActivityForResult(intent, CAMERA_REQUEST_CODE)
-                }
-                else {
-                    Log.d(TAG, "In Alert Dialog, Permission denied")
-                    requestCameraPermission()
-                    showErrorSnackbar()
-                }
             })
         myAlertDialog.show()
     }
 
     /**
-     * request fine and coarse permission required by the Gmaps
+     * Request Camera permission. If permission is granted, open camera, else ask for permission
      */
     private fun requestCameraPermission() {
-        if (!hasPermissions(requireContext())) {
-            requestPermissions(PERMISSIONS_REQUIRED, PERMISSIONS_REQUEST_CODE)
+        if (hasCameraPermission(requireContext())) {
+            setupCamera()
+            return
         }
+        EasyPermissions.requestPermissions(
+            this,
+            "You need to accept camera permissions to use this app",
+            CAMERA_REQUEST_CODE,
+            android.Manifest.permission.CAMERA
+        )
     }
+
+
+    /**
+     * Setup Camera
+     */
+    private fun setupCamera() {
+        val capturedImage = File(getApplicationContext(requireContext()).getExternalFilesDir(""), "Claims_${System.currentTimeMillis()}.jpg")
+        if(capturedImage.exists()) {
+            capturedImage.delete()
+        }
+        capturedImage.createNewFile()
+        mUri = if(Build.VERSION.SDK_INT >= 24){
+            FileProvider.getUriForFile(requireContext(), "com.example.ezhr.fileprovider", capturedImage)
+        } else {
+            Uri.fromFile(capturedImage)
+        }
+        Log.d("TAG", "mUri: $mUri.toString()")
+        val intent = Intent("android.media.action.IMAGE_CAPTURE")
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mUri)
+        startActivityForResult(intent, CAMERA_REQUEST_CODE)
+    }
+
 
     /**
      * Check if permission is already granted
      */
-    private fun checkPermission() : Boolean {
-        val result = PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(requireContext(),
-            Manifest.permission.CAMERA)
-        Log.d(TAG, "Check Permission granted: $result")
-        return result
+
+    private fun hasCameraPermission(context: Context) = EasyPermissions.hasPermissions(
+                context,
+                Manifest.permission.CAMERA,
+            )
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionsGranted: Permission granted")
+        setupCamera()
     }
 
-    /**
-     * Show a snackbar to the settings if permission denied
-     */
-    private fun showErrorSnackbar() { //semi important error method
-        view?.let {
-            Snackbar.make(it, "App permission required", Snackbar.LENGTH_LONG)
-                .setAction("Settings") {
-                    // Responds to click on the action
-                    val intent = Intent()
-                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                    val uri = Uri.fromParts("package", requireActivity().packageName, null)
-                    intent.data = uri
-                    this.startActivity(intent)
-                }.show()
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionDenied: Permission denied")
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            AppSettingsDialog.Builder(this).build().show()
+        } else {
+            requestCameraPermission()
         }
     }
 
-    /** Convenience method used to check if all permissions required by this app are granted */
-    private fun hasPermissions(context: Context) = PERMISSIONS_REQUIRED.all {
-        ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
     companion object {
@@ -649,8 +651,6 @@ class ApplyClaimFragment : Fragment() {
          * this fragment using the provided parameters.
          * @return A new instance of fragment.
          */
-        private const val PERMISSIONS_REQUEST_CODE = 10
-        private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
         private val TAG = ApplyClaimFragment::class.simpleName
         private var mUri: Uri? = null
         fun newInstance(): ApplyClaimFragment {
@@ -669,4 +669,6 @@ class ApplyClaimFragment : Fragment() {
             return desc.isEmpty()
         }
     }
+
+
 }

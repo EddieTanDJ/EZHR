@@ -176,5 +176,6 @@ dependencies {
     // CameraX View class
     implementation "androidx.camera:camera-view:$camerax_version"
 
-
+    // Easy Permission
+    implementation 'pub.devrel:easypermissions:3.0.0'
 }
