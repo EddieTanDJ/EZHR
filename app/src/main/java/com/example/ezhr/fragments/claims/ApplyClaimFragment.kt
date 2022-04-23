@@ -623,7 +623,7 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
 
     private fun hasCameraPermission(context: Context) = EasyPermissions.hasPermissions(
                 context,
-                Manifest.permission.CAMERA,
+                Manifest.permission.CAMERA
             )
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
