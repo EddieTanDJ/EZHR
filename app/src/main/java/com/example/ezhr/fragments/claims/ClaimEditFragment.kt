@@ -384,6 +384,7 @@ class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
     /**
      * Setup Camera
      */
+    @SuppressLint("RestrictedApi")
     private fun setupCamera() {
         val capturedImage = File(ContextUtil.getApplicationContext(requireContext()).getExternalFilesDir(""), "Claims_${System.currentTimeMillis()}.jpg")
         if(capturedImage.exists()) {
