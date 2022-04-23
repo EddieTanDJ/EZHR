@@ -1,21 +1,18 @@
 package com.example.ezhr.fragments.attendance
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
-import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
-import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -30,8 +27,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.material.snackbar.Snackbar
 import com.google.maps.android.SphericalUtil
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
 
 /**
  * A simple [Fragment] subclass.
@@ -39,7 +37,7 @@ import com.google.maps.android.SphericalUtil
  * create an instance of this fragment.
  */
 
-class AttendanceMapFragment : Fragment(), OnMapReadyCallback {
+class AttendanceMapFragment : Fragment(), OnMapReadyCallback, EasyPermissions.PermissionCallbacks {
     private var _binding: FragmentAttendanceMapBinding? = null
     private val binding get() = _binding!!
     private lateinit var mMap: GoogleMap
@@ -66,7 +64,6 @@ class AttendanceMapFragment : Fragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         getLocationUpdates()
-
         binding.checkInBtn.setOnClickListener {
             navController.navigate(R.id.action_attendanceMap_to_attendanceQRCodeFragment)
         }
@@ -79,7 +76,6 @@ class AttendanceMapFragment : Fragment(), OnMapReadyCallback {
 
     private fun getLocationUpdates() {
         Log.d(TAG, "get updates")
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         locationRequest = LocationRequest.create().apply {
             interval = 100
@@ -90,8 +86,6 @@ class AttendanceMapFragment : Fragment(), OnMapReadyCallback {
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-//                Log.d(TAG, "location change")
-
                 if (locationResult.locations.isNotEmpty()) {
                     // get latest location
                     val location =
@@ -124,90 +118,15 @@ class AttendanceMapFragment : Fragment(), OnMapReadyCallback {
         )
         // Add a marker in office and move the camera
         val office = LatLng(MapsActivity.GEOFENCE_LAT, MapsActivity.GEOFENCE_LONG)
-//        mMap.addMarker(MarkerOptions().position(office).title("Marker in Singapore"))
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(office, 18F))
-//        mMap.animateCamera(CameraUpdateFactory.zoomTo(18F), 2000, null)
-        requestFineAndCoarseLocationPermissions()
+        requestLocationPermission()
     }
 
-    /**
-     *  check if permissions are approved
-     */
-    private fun fineAndCoarseLocationPermissionApproved(): Boolean {
-        val fineLocationApproved = (
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        )
-                )
-        val coarsePermissionApproved = (
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
-                        )
-                )
-        Log.d(TAG, fineLocationApproved.toString() + coarsePermissionApproved.toString())
-        return fineLocationApproved && coarsePermissionApproved
-    }
-
-    /**
-     * request fine and coarse permission required by the Gmaps
-     */
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    private fun requestFineAndCoarseLocationPermissions() {
-        if (fineAndCoarseLocationPermissionApproved()) {
-            mMap.isMyLocationEnabled = true
-            startLocationUpdates()
-            return
-        }
-        val permissionsArray = arrayOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
-        Log.d(TAG, "Request fine and coarse location permission")
-        requestMultiplePermissions.launch(
-            permissionsArray
-        )
-        if (fineAndCoarseLocationPermissionApproved()) {
-            mMap.isMyLocationEnabled = true
-            startLocationUpdates()
-            return
-        } else {
-            showErrorSnackbar()
-        }
-    }
-
-    /**
-     * Show a snackbar to the settings if permission denied
-     */
-    private fun showErrorSnackbar() { //semi important error method
-        view?.let {
-            Snackbar.make(it, "App permission required", Snackbar.LENGTH_LONG)
-                .setAction("Settings") {
-                    // Responds to click on the action
-                    val intent = Intent()
-                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                    val uri = Uri.fromParts("package", requireActivity().packageName, null)
-                    intent.data = uri
-                    this.startActivity(intent)
-                }.show()
-        }
-    }
-
-    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    val requestMultiplePermissions =
-        registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissions ->
-            permissions.entries.forEach {
-                Log.e(TAG, "${it.key} = ${it.value}")
-            }
-        }
 
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "onResume called. Checking permissions")
         if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -268,6 +187,57 @@ class AttendanceMapFragment : Fragment(), OnMapReadyCallback {
         binding.checkInBtn.hide()
     }
 
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionsGranted: Permission granted")
+        mMap.isMyLocationEnabled = true
+        startLocationUpdates()
+    }
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            Log.d(TAG, "onPermissionsDenied: Permissions permanently denied")
+            AppSettingsDialog.Builder(this).build().show()
+        } else {
+            Log.d(TAG, "onPermissionsDenied: Permissions temporary denied")
+            requestLocationPermission()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    private fun requestLocationPermission() {
+            Log.d(TAG, "requestLocationPermission: ${hasLocationPermissions(requireContext())}")
+            if (hasLocationPermissions(requireContext())) {
+                Log.d(TAG, "requestLocationPermission: Permissions already granted")
+                mMap.isMyLocationEnabled = true
+                startLocationUpdates()
+                return
+            }
+            EasyPermissions.requestPermissions(
+                this,
+                "You need to accept location permissions to use this app",
+                REQUEST_CODE_LOCATION_PERMISSION,
+                android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+            )
+        }
+
+    /**
+     * Check if location permission is already granted
+     */
+
+    private fun hasLocationPermissions(context: Context) =
+            EasyPermissions.hasPermissions(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            )
 
     companion object {
         /**
@@ -280,5 +250,9 @@ class AttendanceMapFragment : Fragment(), OnMapReadyCallback {
         fun newInstance(): AttendanceMapFragment {
             return AttendanceMapFragment()
         }
+        private const val REQUEST_CODE_LOCATION_PERMISSION = 100
+
     }
+
+
 }

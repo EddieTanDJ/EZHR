@@ -52,10 +52,6 @@ class ClaimsDetailFragment : Fragment() {
         viewModel.claimID.observe(viewLifecycleOwner) {
             Log.d(TAG, "Claim ID from view model: $it")
             claimID = it
-//            viewModel.uploadImage.observe(viewLifecycleOwner) { img ->
-//                Log.d(TAG, "Uploaded Image file string from view model: $img")
-//                uploadedImg = img
-//            }
             if (viewModel.uploadImage.value != null) {
                 uploadedImg = viewModel.uploadImage.value!!
                 Log.d(TAG, "Uploaded Image file string: $uploadedImg")
@@ -129,7 +125,6 @@ class ClaimsDetailFragment : Fragment() {
             Log.d(TAG, "Image URL: $url")
             Glide.with(this).load(url).into(binding.imageViewDocument)
             // Glide.with(requireActivity()).load(url).into(binding.imageViewDocument)
-
             if (claim.status != "PENDING") {
                 binding.imageButtonEdit.isEnabled = false
                 binding.imageButtonDelete.isEnabled = false
