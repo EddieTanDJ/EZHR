@@ -549,7 +549,7 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
     }
 
     /**
-     * Open up image gallery
+     * Open up Dialog Picker to select image from gallery or camera
      */
     private fun selectImage() {
         startDialog()

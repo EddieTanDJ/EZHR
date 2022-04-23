@@ -1,17 +1,25 @@
 package com.example.ezhr.fragments.claims
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.camera.core.impl.utils.ContextUtil
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
@@ -26,6 +34,8 @@ import com.example.ezhr.viewmodel.ClaimEditViewModel
 import com.example.ezhr.viewmodel.ClaimEditViewModelFactory
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,7 +45,7 @@ import java.util.*
  * Use the [ClaimEditFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ClaimEditFragment : Fragment() {
+class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
     private var claimTypeIndex = 0
     private var claimID = ""
     private var currentUploadedImg = ""
@@ -43,7 +53,7 @@ class ClaimEditFragment : Fragment() {
     private lateinit var claimTitle: EditText
     private lateinit var claimAmt: EditText
     private lateinit var claimDesc: EditText
-
+    private val CAMERA_REQUEST_CODE = 233
     private val GALLERY_REQUEST_CODE = 234
     private lateinit var uploadedFileURI: Uri
     private lateinit var addDocumentBtn: ImageButton
@@ -107,7 +117,7 @@ class ClaimEditFragment : Fragment() {
         }
 
         addDocumentBtn.setOnClickListener {
-            selectImageFromGallery()
+            selectImage()
         }
 
         cancelUploadBtn.setOnClickListener {
@@ -259,6 +269,17 @@ class ClaimEditFragment : Fragment() {
                 markButtonDisabled(addDocumentBtn, fileUri)
             }
         }
+
+        if (requestCode == CAMERA_REQUEST_CODE
+            && resultCode == Activity.RESULT_OK
+        ) {
+            // Get the Uri of data
+            val fileUri = mUri
+            if (fileUri != null) {
+                setCurrentFileURI(fileUri)
+                markButtonDisabled(addDocumentBtn, fileUri)
+            }
+        }
     }
 
     /**
@@ -312,19 +333,101 @@ class ClaimEditFragment : Fragment() {
     }
 
     /**
-     * Open up image gallery
+     * Open up Dialog Picker to select image from gallery or camera
      */
-    private fun selectImageFromGallery() {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(
-            Intent.createChooser(
-                intent,
-                "Please select..."
-            ),
-            GALLERY_REQUEST_CODE
+    private fun selectImage() {
+        startDialog()
+    }
+
+
+    /**
+     * Allow user to choose between camera and gallery
+     */
+    @SuppressLint("RestrictedApi")
+    private fun startDialog() {
+        val myAlertDialog: AlertDialog.Builder = AlertDialog.Builder(
+            requireContext()
         )
+        myAlertDialog.setTitle("Upload Pictures")
+        myAlertDialog.setMessage("How do you want to upload your picture?")
+        myAlertDialog.setPositiveButton("Gallery",
+            DialogInterface.OnClickListener { arg0, arg1 ->
+                val galleryIntent = Intent()
+                galleryIntent.type = "image/*"
+                galleryIntent.action = Intent.ACTION_GET_CONTENT
+                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE)
+            })
+        myAlertDialog.setNegativeButton("Camera",
+            DialogInterface.OnClickListener { arg0, arg1 ->
+                requestCameraPermission()
+            })
+        myAlertDialog.show()
+    }
+
+    /**
+     * Request Camera permission. If permission is granted, open camera, else ask for permission
+     */
+    private fun requestCameraPermission() {
+        if (hasCameraPermission(requireContext())) {
+            setupCamera()
+            return
+        }
+        EasyPermissions.requestPermissions(
+            this,
+            "You need to accept camera permissions to use this app",
+            CAMERA_REQUEST_CODE,
+            android.Manifest.permission.CAMERA
+        )
+    }
+
+
+    /**
+     * Setup Camera
+     */
+    private fun setupCamera() {
+        val capturedImage = File(ContextUtil.getApplicationContext(requireContext()).getExternalFilesDir(""), "Claims_${System.currentTimeMillis()}.jpg")
+        if(capturedImage.exists()) {
+            capturedImage.delete()
+        }
+        capturedImage.createNewFile()
+        mUri = if(Build.VERSION.SDK_INT >= 24){
+            FileProvider.getUriForFile(requireContext(), "com.example.ezhr.fileprovider", capturedImage)
+        } else {
+            Uri.fromFile(capturedImage)
+        }
+        Log.d("TAG", "mUri: ${mUri}.toString()")
+        val intent = Intent("android.media.action.IMAGE_CAPTURE")
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mUri)
+        startActivityForResult(intent, CAMERA_REQUEST_CODE)
+    }
+
+
+    /**
+     * Check if permission is already granted
+     */
+
+    private fun hasCameraPermission(context: Context) = EasyPermissions.hasPermissions(
+        context,
+        Manifest.permission.CAMERA
+    )
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionsGranted: Permission granted")
+        setupCamera()
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionDenied: Permission denied")
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            AppSettingsDialog.Builder(this).build().show()
+        } else {
+            requestCameraPermission()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
     companion object {
@@ -334,6 +437,7 @@ class ClaimEditFragment : Fragment() {
          * @return A new instance of fragment.
          */
         private val TAG = ClaimEditFragment::class.simpleName
+        private var mUri: Uri? = null
         fun newInstance(): ClaimEditFragment {
             return ClaimEditFragment()
         }
