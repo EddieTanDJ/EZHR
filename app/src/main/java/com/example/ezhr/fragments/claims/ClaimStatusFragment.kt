@@ -132,7 +132,6 @@ class ClaimStatusFragment : Fragment(), ClaimStatusAdapter.ItemListener {
         Log.d(TAG, "Claim ID: $claimID")
         Log.d(TAG, "Uploaded Image: $uploadedImg")
         Log.d(TAG, "Claim: $claim")
-
         viewModel.setClaims(claim)
         viewModel.setClaimID(claimID)
         viewModel.setUploadImage(uploadedImg)

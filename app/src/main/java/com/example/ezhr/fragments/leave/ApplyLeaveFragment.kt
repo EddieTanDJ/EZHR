@@ -21,6 +21,7 @@ import com.example.ezhr.data.LeaveStatus
 import com.example.ezhr.databinding.FragmentApplyLeaveBinding
 import com.example.ezhr.viewmodel.ApplyLeaveViewModel
 import com.example.ezhr.viewmodel.ApplyLeaveViewModelFactory
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -150,7 +151,7 @@ class ApplyLeaveFragment : Fragment() {
 
         //When user clicks on leave balance button
         leaveBalanceButton.setOnClickListener {
-            val builder = AlertDialog.Builder(context)
+            val builder = MaterialAlertDialogBuilder(requireContext())
             //set title for alert dialog
             builder.setTitle("Leave Balances")
             //set message for alert dialog
@@ -215,7 +216,7 @@ class ApplyLeaveFragment : Fragment() {
                     if (numberOfDays == 0) {
                         numberOfDays = 1
                     }
-                    val builder = AlertDialog.Builder(context)
+                    val builder = MaterialAlertDialogBuilder(requireContext())
                     //set title for alert dialog
                     builder.setTitle(R.string.dialogTitle)
                     //set message for alert dialog
@@ -291,14 +292,10 @@ class ApplyLeaveFragment : Fragment() {
 
                     //performing cancel action
                     builder.setNeutralButton("Cancel") { dialogInterface, which ->
-                        Toast.makeText(
-                            context,
-                            "Submission unsuccessful",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        dialogInterface.dismiss()
                     }
                     // Create the AlertDialog
-                    val alertDialog: AlertDialog = builder.create()
+                    val alertDialog = builder.create()
                     // Set other dialog properties
                     alertDialog.setCancelable(false)
                     alertDialog.show()

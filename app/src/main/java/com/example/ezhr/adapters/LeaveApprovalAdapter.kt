@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.ezhr.R
 import com.example.ezhr.data.LeaveStatus
 import com.example.ezhr.data.User
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.database.FirebaseDatabase
 
 class LeaveApprovalAdapter(
@@ -49,7 +50,7 @@ class LeaveApprovalAdapter(
 
         //When user clicks on 3 dot button widget
         leaveOptionPopup.setOnClickListener {
-            val builder = AlertDialog.Builder(leaveOptionPopup.context)
+            val builder = MaterialAlertDialogBuilder(leaveOptionPopup.context)
             builder.setTitle("Manager options")
             builder.setIcon(android.R.drawable.ic_dialog_alert)
 
@@ -59,7 +60,7 @@ class LeaveApprovalAdapter(
             ) { dialog, which -> // do something like...
                 dialog.dismiss()
 
-                val alertDialog = AlertDialog.Builder(leaveOptionPopup.context)
+                val alertDialog = MaterialAlertDialogBuilder(leaveOptionPopup.context)
                 alertDialog.setTitle("Leave Application Details")
                 alertDialog.setMessage(
                     "Leave type : " + leaveTypeView.text + "\nStart Date : " + leaveStatusList[position].startLeaveDate + "\nEnd Date : "
@@ -83,7 +84,7 @@ class LeaveApprovalAdapter(
             ) { dialog, which -> // do something like...
                 dialog.dismiss()
 
-                val alertDialog = AlertDialog.Builder(leaveOptionPopup.context)
+                val alertDialog = MaterialAlertDialogBuilder(leaveOptionPopup.context)
                 alertDialog.setTitle("Approve Leave Application")
                 alertDialog.setMessage(
                     "Are you sure you want to approve this leave application?"
@@ -92,7 +93,7 @@ class LeaveApprovalAdapter(
 
                 alertDialog.setPositiveButton("Confirm") { dialogInterface, which ->
                     //approveLeaveApplication
-                    val approveLeave = FirebaseDatabase.getInstance().getReference("Leaves")
+                    val approveLeave = FirebaseDatabase.getInstance().getReference("leaves")
                     approveLeave.child(idList[position]).child("leaveStatus").setValue("Approved")
 
                     val leaveBalance = mapOf(
@@ -154,7 +155,7 @@ class LeaveApprovalAdapter(
             ) { dialog, which -> // do something like...
                 dialog.dismiss()
 
-                val alertDialog = AlertDialog.Builder(leaveOptionPopup.context)
+                val alertDialog = MaterialAlertDialogBuilder(leaveOptionPopup.context)
                 alertDialog.setTitle("Cancel Leave Application")
                 alertDialog.setMessage(
                     "Are you sure you want to reject this leave application?"
@@ -162,7 +163,7 @@ class LeaveApprovalAdapter(
                 alertDialog.setIcon(android.R.drawable.ic_dialog_alert)
 
                 alertDialog.setPositiveButton("Confirm") { dialogInterface, which ->
-                    val approveLeave = FirebaseDatabase.getInstance().getReference("Leaves")
+                    val approveLeave = FirebaseDatabase.getInstance().getReference("leaves")
                     approveLeave.child(idList[position]).child("leaveStatus").setValue("Rejected")
 
                 }

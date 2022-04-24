@@ -53,7 +53,7 @@ class ApplyLeaveViewModel : ViewModel() {
         leaveStatus: LeaveStatus,
         uploadedFileName: String
     ) {
-        database = FirebaseDatabase.getInstance().getReference("Leaves")
+        database = FirebaseDatabase.getInstance().getReference("leaves")
         var newDatabaseRef = database.push()
 
         val currentLeaveID = newDatabaseRef.key.toString()

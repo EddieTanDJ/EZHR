@@ -26,6 +26,7 @@ internal class AdminClaimsAdapter(
     private var idList: List<String>,
 ) :
     RecyclerView.Adapter<AdminClaimsAdapter.MyViewHolder>() {
+    private val TAG = "ManagerClaimsAdapter"
     internal inner class MyViewHolder(val binding: AdminClaimListItemBinding) :
         RecyclerView.ViewHolder(binding.root)
 
@@ -56,6 +57,7 @@ internal class AdminClaimsAdapter(
 
         holder.binding.textViewTitle.text = item.title
         holder.itemView.setOnClickListener {
+            Log.d(TAG, "onClick: clicked on: $item")
             val title = item.title
             val date = item.dateApplied
             val amtAndType = "$${item.amount} (${item.claimType})"
@@ -164,6 +166,7 @@ internal class AdminClaimsAdapter(
         desc: String,
         url: String,
     ) {
+        Log.d(TAG, "context: $context")
         val builder = AlertDialog.Builder(context, R.style.CustomAlertDialog).create()
         val view = LayoutInflater.from(context).inflate(R.layout.manager_claim_detail, null)
         val button = view.findViewById<Button>(R.id.buttonClose)
@@ -174,7 +177,7 @@ internal class AdminClaimsAdapter(
         val textViewDesc = view.findViewById<TextView>(R.id.textViewDesc)
         val uploadedImg = view.findViewById<ImageView>(R.id.imageViewDocument2)
         Glide.with(context).load(url).into(uploadedImg)
-
+        Log.d(TAG, "url: $url")
         claimTitle.text = title
         claimDate.text = date
         claimAmtAndType.text = amtAndType

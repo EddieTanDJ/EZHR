@@ -29,7 +29,7 @@ class LeaveStatusViewModel : ViewModel() {
      * Retrieve and display current user's recent claim applications from firebase database
      */
     private fun loadLeaves() {
-        database = FirebaseDatabase.getInstance().getReference("Leaves")
+        database = FirebaseDatabase.getInstance().getReference("leaves")
         val firebaseStorageRef = FirebaseStorage.getInstance().reference
 
         database.addValueEventListener(object : ValueEventListener {
@@ -49,7 +49,7 @@ class LeaveStatusViewModel : ViewModel() {
                             newFileNameList.add(fileName.toString())
 
                             if (leave != null) {
-                                firebaseStorageRef.child("Leaves/$leaveID/$fileName").downloadUrl.addOnSuccessListener {
+                                firebaseStorageRef.child("leaves/$leaveID/$fileName").downloadUrl.addOnSuccessListener {
                                     leave.uploadedImg = it.toString()
                                 }
                             }

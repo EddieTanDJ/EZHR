@@ -99,14 +99,17 @@ class ManagerClaimsFragment : Fragment() {
 
     private fun observeData() {
         managerClaimsViewModel.idList.observe(viewLifecycleOwner) {
+            Log.d(TAG, "idList: $it")
             idList = it
         }
 
         managerClaimsViewModel.fileNameList.observe(viewLifecycleOwner) {
+            Log.d(TAG, "fileList: $it")
             fileNameList = it
         }
 
         managerClaimsViewModel.claimsList.observe(viewLifecycleOwner) {
+            Log.d(TAG, "claimsList: $it")
             claimList = it
             recyclerView.adapter = AdminClaimsAdapter(it, idList)
         }

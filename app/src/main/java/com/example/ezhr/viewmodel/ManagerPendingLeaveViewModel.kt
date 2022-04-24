@@ -21,7 +21,7 @@ class ManagerPendingLeaveViewModel : ViewModel() {
     }
 
     private fun getPendingLeavesData() {
-        val database = FirebaseDatabase.getInstance().getReference("Leaves")
+        val database = FirebaseDatabase.getInstance().getReference("leaves")
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

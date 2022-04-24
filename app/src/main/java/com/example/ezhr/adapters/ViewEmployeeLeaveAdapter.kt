@@ -14,7 +14,8 @@ import com.google.firebase.database.FirebaseDatabase
 
 class ViewEmployeeLeaveAdapter(
     private var leaveStatusList: ArrayList<LeaveStatus>,
-    private val idList: ArrayList<String>
+    private var fileNameList: ArrayList<String>,
+    private var idList: ArrayList<String>
 ) :
     RecyclerView.Adapter<ViewEmployeeLeaveAdapter.ViewHolder>() {
 
