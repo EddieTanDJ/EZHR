@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,13 +26,18 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.ezhr.EZHRApp
 import com.example.ezhr.R
+import com.example.ezhr.TAG
 import com.example.ezhr.data.Claim
 import com.example.ezhr.databinding.FragmentApplyClaimBinding
 import com.example.ezhr.repository.ClaimApplicationManager
 import com.example.ezhr.repository.Draft
 import com.example.ezhr.viewmodel.ApplyClaimViewModel
 import com.example.ezhr.viewmodel.ApplyClaimViewModelFactory
+import com.example.ezhr.viewmodel.ClaimBalanceViewModel
+import com.example.ezhr.viewmodel.ClaimBalanceViewModelFactory
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
@@ -79,16 +85,25 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
     private var wordList = mutableListOf<String>()
     private var categoryCount: MutableList<Int> = mutableListOf(0, 0, 0, 0, 0)
 
+
+
     // NavController variable
     private lateinit var navController: NavController
     private var _binding: FragmentApplyClaimBinding? = null
     private val binding get() = _binding!!
 
-    // view model
+    // view model for applyClaims
     private val viewModel: ApplyClaimViewModel by activityViewModels {
         val application = requireActivity().application
         val app = application as EZHRApp
         ApplyClaimViewModelFactory(app.applyClaimRepo)
+    }
+
+    // view model for claimBalance
+    private val viewModelBalance: ClaimBalanceViewModel by activityViewModels {
+        val application = requireActivity().application
+        val app = application as EZHRApp
+        ClaimBalanceViewModelFactory(app.claimBalanceRepo)
     }
 
     override fun onCreateView(
@@ -174,7 +189,7 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
             val claimType = spinner.selectedItem.toString()
 
             val sdf = SimpleDateFormat("dd/M/yyyy")
-            val currentDate = sdf.format(Date())
+            val currentDate = sdf.format(Date()).toString()
             var valid = true
 
             if (TextUtils.isEmpty(claimTitle.text)) {
@@ -191,60 +206,12 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
             }
 
             if (valid) {
-                viewModel.getCurrentClaimBalance(claimType).observe(viewLifecycleOwner) {
-                    if (claimAmt.text.toString().toDouble() <= it) {
-                        var claim = Claim(
-                            userID,
-                            claimTitle.text.toString(),
-                            claimType,
-                            "PENDING",
-                            currentDate.toString(),
-                            claimDesc.text.toString(),
-                            claimAmt.text.toString().toDouble(),
-                            uploadedFileName
-                        )
-
-                        var uri: Uri? = null
-                        if (this::uploadedFileURI.isInitialized) {
-                            uri = uploadedFileURI
-                        } else {
-                            uri = null
-                        }
-
-                        viewModel.uploadClaimApplication(
-                            uri,
-                            claim,
-                            uploadedFileName
-                        ).observe(viewLifecycleOwner) {
-                            if (it) {
-                                Toast.makeText(
-                                    context,
-                                    "Claim application submitted.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                navController.navigate(R.id.action_applyClaimFragment_to_claimsFragment)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Failed to submit claim application.",
-                                    Toast.LENGTH_LONG
-                                )
-                                    .show()
-                            }
-                            // TODO: Change it to other scope. Is discourage to use global scope
-                            GlobalScope.launch(Dispatchers.IO) {
-                                claimManager.clearDataStore()
-                            }
-                        }
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Claim balance for $claimType is too low.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+                startConfirmationDialog(claimType , currentDate)
             }
+        }
+
+        binding.claimsBalanceButton.setOnClickListener {
+            startBalanceDialog()
         }
     }
 
@@ -560,9 +527,7 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
      */
     @SuppressLint("RestrictedApi")
     private fun startDialog() {
-        val myAlertDialog: AlertDialog.Builder = AlertDialog.Builder(
-            requireContext()
-        )
+        val myAlertDialog = MaterialAlertDialogBuilder(requireContext())
         myAlertDialog.setTitle("Upload Pictures")
         myAlertDialog.setMessage("How do you want to upload your picture?")
         myAlertDialog.setPositiveButton("Gallery",
@@ -576,7 +541,7 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
             DialogInterface.OnClickListener { arg0, arg1 ->
                 requestCameraPermission()
             })
-        myAlertDialog.show()
+        myAlertDialog.create().show()
     }
 
     /**
@@ -589,12 +554,11 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
         }
         EasyPermissions.requestPermissions(
             this,
-            "You need to accept camera permissions to use this app",
+            "Camera permission is needed to take pictures.",
             CAMERA_REQUEST_CODE,
             android.Manifest.permission.CAMERA
         )
     }
-
 
     /**
      * Setup Camera
@@ -635,7 +599,19 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
         Log.d(TAG, "onPermissionDenied: Permission denied")
         if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-            AppSettingsDialog.Builder(this).build().show()
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Permissions Required")
+                .setMessage("This app may not work properly without the requested permissions. Open the app settings scrreen to modify app permissions.")
+                .setPositiveButton("Settings") { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", requireContext().packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create().show()
         } else {
             requestCameraPermission()
         }
@@ -644,6 +620,99 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    /**
+     * Handle Dialog when claims balance is clicked
+     */
+    private fun startBalanceDialog() {
+        viewModelBalance.fetchClaimBalances().observe(viewLifecycleOwner) {
+            if (it.exception != null) {
+                Log.d(TAG, it.exception.toString())
+            } else {
+                val builder = MaterialAlertDialogBuilder(requireContext())
+                builder.setTitle("Claims Balance")
+                builder.setMessage(
+                    "Medical Balance: $${it.balance!!.medical_balance}\n" +
+                            "Food Balance: $${it.balance!!.food_balance}\n" +
+                            "Transportation Balance: $${it.balance!!.transportation_balance}\n" +
+                            "Other Balance: $${it.balance!!.others_balance}"
+                )
+                builder.setPositiveButton("OK") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                builder.create().show()
+            }
+        }
+    }
+
+    /**
+     * Handle Dialog for confirmation of claim submission
+     */
+    private fun startConfirmationDialog(claimType : String, currentDate : String) {
+        val builder = MaterialAlertDialogBuilder(requireContext())
+        builder.setTitle("Confirmation")
+        builder.setMessage("Are you sure you want to submit this claim?")
+        builder.setPositiveButton("Yes") { dialog, _ ->
+            dialog.dismiss()
+            viewModel.getCurrentClaimBalance(claimType).observe(viewLifecycleOwner) {
+                if (claimAmt.text.toString().toDouble() <= it) {
+                    var claim = Claim(
+                        userID,
+                        claimTitle.text.toString(),
+                        claimType,
+                        "PENDING",
+                        currentDate.toString(),
+                        claimDesc.text.toString(),
+                        claimAmt.text.toString().toDouble(),
+                        uploadedFileName
+                    )
+
+                    var uri: Uri? = null
+                    if (this::uploadedFileURI.isInitialized) {
+                        uri = uploadedFileURI
+                    } else {
+                        uri = null
+                    }
+
+                    viewModel.uploadClaimApplication(
+                        uri,
+                        claim,
+                        uploadedFileName
+                    ).observe(viewLifecycleOwner) {
+                        if (it) {
+                            Toast.makeText(
+                                context,
+                                "Claim application submitted.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            navController.navigate(R.id.action_applyClaimFragment_to_homeFragment)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Failed to submit claim application.",
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+                        // TODO: Change it to other scope. Is discourage to use global scope
+                        GlobalScope.launch(Dispatchers.IO) {
+                            claimManager.clearDataStore()
+                        }
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Claim balance for $claimType is too low.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
     }
 
     companion object {
@@ -670,6 +739,5 @@ class ApplyClaimFragment : Fragment() , EasyPermissions.PermissionCallbacks {
             return desc.isEmpty()
         }
     }
-
 
 }

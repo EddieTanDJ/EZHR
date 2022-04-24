@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/applyClaimFragmentSV"
+    android:fillViewport="true">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".BottomActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,7 +61,6 @@
             </LinearLayout>
 
         </LinearLayout>
-
         <TextView
             android:id="@+id/textView4"
             android:layout_width="match_parent"
@@ -154,10 +162,16 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/buttonSave"
+            android:id="@+id/claimsBalanceButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:text="CLAIMS BALANCE" />
+
+        <Button
+            android:id="@+id/buttonSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:backgroundTint="#878787"
             android:text="SAVE TO DRAFTS" />
 
@@ -169,3 +183,4 @@
             android:text="SUBMIT" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

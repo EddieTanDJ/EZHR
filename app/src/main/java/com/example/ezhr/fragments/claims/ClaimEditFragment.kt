@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.provider.Settings
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,6 +33,7 @@ import com.example.ezhr.viewmodel.ClaimDetailViewModel
 import com.example.ezhr.viewmodel.ClaimDetailViewModelFactory
 import com.example.ezhr.viewmodel.ClaimEditViewModel
 import com.example.ezhr.viewmodel.ClaimEditViewModelFactory
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import pub.devrel.easypermissions.AppSettingsDialog
@@ -132,7 +134,7 @@ class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
         binding.buttonResubmit.setOnClickListener {
             val claimType = spinner.selectedItem.toString()
             val sdf = SimpleDateFormat("dd/M/yyyy")
-            val currentDate = sdf.format(Date())
+            val currentDate = sdf.format(Date()).toString()
             var valid = true
 
             if (TextUtils.isEmpty(claimTitle.text)) {
@@ -149,58 +151,7 @@ class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
             }
 
             if (valid) {
-                claimEditViewModel.getCurrentClaimBalance(claimType).observe(viewLifecycleOwner) {
-                    if (claimAmt.text.toString().toDouble() <= it) {
-                        var claim = Claim(
-                            "",
-                            claimTitle.text.toString(),
-                            claimType,
-                            "",
-                            currentDate.toString(),
-                            claimDesc.text.toString(),
-                            claimAmt.text.toString().toDouble(),
-                            uploadedFileName
-                        )
-
-                        var uri: Uri? = null
-                        if (this::uploadedFileURI.isInitialized) {
-                            uri = uploadedFileURI
-                        } else {
-                            uri = null
-                        }
-
-                        claimEditViewModel.updateClaim(
-                            claim,
-                            claimID,
-                            uri,
-                            currentUploadedImg,
-                            uploadedFileName
-                        ).observe(viewLifecycleOwner) {
-                            if (it) {
-                                Toast.makeText(
-                                    context,
-                                    "Claim application resubmitted.",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                // Navigate to claim status fragment
-                                navController.navigate(R.id.action_claimsEditFragment_to_claimsStatusFragment)
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Failed to resubmit claim application.",
-                                    Toast.LENGTH_LONG
-                                )
-                                    .show()
-                            }
-                        }
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Claim balance for $claimType is too low.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
+                startResubmissionConfirmationDialog(claimType, currentDate)
             }
         }
     }
@@ -345,9 +296,7 @@ class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
      */
     @SuppressLint("RestrictedApi")
     private fun startDialog() {
-        val myAlertDialog: AlertDialog.Builder = AlertDialog.Builder(
-            requireContext()
-        )
+        val myAlertDialog: AlertDialog.Builder = MaterialAlertDialogBuilder(requireContext())
         myAlertDialog.setTitle("Upload Pictures")
         myAlertDialog.setMessage("How do you want to upload your picture?")
         myAlertDialog.setPositiveButton("Gallery",
@@ -374,7 +323,7 @@ class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
         }
         EasyPermissions.requestPermissions(
             this,
-            "You need to accept camera permissions to use this app",
+            "Camera permission is needed to take pictures.",
             CAMERA_REQUEST_CODE,
             android.Manifest.permission.CAMERA
         )
@@ -420,7 +369,20 @@ class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
         Log.d(TAG, "onPermissionDenied: Permission denied")
         if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-            AppSettingsDialog.Builder(this).build().show()
+            // AppSettingsDialog.Builder(this).build().show()
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Permissions Required")
+                .setMessage("This app may not work properly without the requested permissions. Open the app settings scrreen to modify app permissions.")
+                .setPositiveButton("Settings") { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", requireContext().packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create().show()
         } else {
             requestCameraPermission()
         }
@@ -429,6 +391,74 @@ class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    /**
+     * Handle Dialog for confirmation of claim resubmission
+     */
+    private fun startResubmissionConfirmationDialog(claimType : String, currentDate: String) {
+        val builder = MaterialAlertDialogBuilder(requireContext())
+        builder.setTitle("Confirmation")
+        builder.setMessage("Are you sure you want to resubmit this claim?")
+        builder.setPositiveButton("Yes") { dialog, _ ->
+            dialog.dismiss()
+            claimEditViewModel.getCurrentClaimBalance(claimType).observe(viewLifecycleOwner) {
+                if (claimAmt.text.toString().toDouble() <= it) {
+                    var claim = Claim(
+                        "",
+                        claimTitle.text.toString(),
+                        claimType,
+                        "",
+                        currentDate,
+                        claimDesc.text.toString(),
+                        claimAmt.text.toString().toDouble(),
+                        uploadedFileName
+                    )
+
+                    var uri: Uri? = null
+                    if (this::uploadedFileURI.isInitialized) {
+                        uri = uploadedFileURI
+                    } else {
+                        uri = null
+                    }
+
+                    claimEditViewModel.updateClaim(
+                        claim,
+                        claimID,
+                        uri,
+                        currentUploadedImg,
+                        uploadedFileName
+                    ).observe(viewLifecycleOwner) {
+                        if (it) {
+                            Toast.makeText(
+                                context,
+                                "Claim application resubmitted.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            // Navigate to claim status fragment
+                            navController.navigate(R.id.action_claimsEditFragment_to_claimsStatusFragment)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Failed to resubmit claim application.",
+                                Toast.LENGTH_LONG
+                            )
+                                .show()
+                        }
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Claim balance for $claimType is too low.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
     }
 
     companion object {

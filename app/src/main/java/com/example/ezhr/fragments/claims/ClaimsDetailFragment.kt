@@ -123,8 +123,12 @@ class ClaimsDetailFragment : Fragment() {
             val url = claim.uploadedImg
             // If cannot use requireContext()
             Log.d(TAG, "Image URL: $url")
-            Glide.with(this).load(url).into(binding.imageViewDocument)
-            // Glide.with(requireActivity()).load(url).into(binding.imageViewDocument)
+            if (!url.isNullOrEmpty()) {
+                Glide.with(this).load(url).into(binding.imageViewDocument)
+            }
+            else {
+                Glide.with(this).load(R.drawable.noimage).into(binding.imageViewDocument)
+            }
             if (claim.status != "PENDING") {
                 binding.imageButtonEdit.isEnabled = false
                 binding.imageButtonDelete.isEnabled = false

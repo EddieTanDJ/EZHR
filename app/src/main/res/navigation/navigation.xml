@@ -22,15 +22,6 @@
             app:popUpToSaveState="true" />
         />
         <action
-            android:id="@+id/action_homeFragment_to_claimsFragment"
-            app:destination="@id/claimsFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"
-            app:popUpTo="@id/homeFragment"
-            app:popUpToSaveState="true" />
-        <action
             android:id="@+id/action_homeFragment_to_balanceLeaveFragment"
             app:destination="@id/balanceLeaveFragment"
             app:enterAnim="@anim/slide_in_right"
@@ -238,12 +229,12 @@
         android:label="Apply Claims"
         tools:layout="@layout/fragment_apply_claim">
         <action
-            android:id="@+id/action_applyClaimFragment_to_claimsFragment"
-            app:destination="@id/claimsFragment"
+            android:id="@+id/action_applyClaimFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:popExitAnim="@anim/slide_out_right"/>
     </fragment>
 
     <!--    Claims Status -->

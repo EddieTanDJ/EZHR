@@ -54,6 +54,7 @@ internal class AdminClaimsAdapter(
             Log.d("firebase", "Error getting data", it)
         }
 
+        holder.binding.textViewTitle.text = item.title
         holder.itemView.setOnClickListener {
             val title = item.title
             val date = item.dateApplied
