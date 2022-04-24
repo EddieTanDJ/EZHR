@@ -69,10 +69,8 @@ class LeaveStatusAdapter(
                     val startLeaveDate = leaveStatusList[position].startLeaveDate.toString()
                     val endLeaveDate = leaveStatusList[position].endLeaveDate.toString()
                     val leaves = leaveStatusList[position]
-                    val uri = idList[position]
                     val url = leaveStatusList[position].uploadedImg.toString()
                     Log.d(TAG, "onBindViewHolder Leaves Status: $leaves")
-                    Log.d(TAG, "onBindViewHolder Pending uri: $uri")
                     Log.d(TAG, "onBindViewHolder Pending url: $url")
                     showDialog(context, leaveType, nod, startLeaveDate, endLeaveDate, url)
 

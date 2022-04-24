@@ -1,13 +1,17 @@
 package com.example.ezhr.adapters
 
 import android.app.AlertDialog
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.ezhr.R
 import com.example.ezhr.data.LeaveStatus
 import com.example.ezhr.data.User
@@ -19,6 +23,7 @@ class LeaveApprovalAdapter(
     private val idList: ArrayList<String>
 ) :
     RecyclerView.Adapter<LeaveApprovalAdapter.ViewHolder>() {
+    private val TAG = "LeaveApprovalAdapter"
     class ViewHolder(val constraintLayout: ConstraintLayout) :
         RecyclerView.ViewHolder(constraintLayout)
 
@@ -37,6 +42,7 @@ class LeaveApprovalAdapter(
         val submissionDateView = constraintLayout.getChildAt(1) as TextView
         val leaveTypeView = constraintLayout.getChildAt(2) as TextView
         val leaveOptionPopup = constraintLayout.getChildAt(3) as ImageButton
+        val context = holder.itemView.context
         submissionDateView.text = leaveStatusList[position].submissionDate
         leaveTypeView.text = leaveStatusList[position].leaveType
 
@@ -59,24 +65,12 @@ class LeaveApprovalAdapter(
                 "View Details"
             ) { dialog, which -> // do something like...
                 dialog.dismiss()
-
-                val alertDialog = MaterialAlertDialogBuilder(leaveOptionPopup.context)
-                alertDialog.setTitle("Leave Application Details")
-                alertDialog.setMessage(
-                    "Leave type : " + leaveTypeView.text + "\nStart Date : " + leaveStatusList[position].startLeaveDate + "\nEnd Date : "
-                            + leaveStatusList[position].endLeaveDate + "\nNumber of days : " + leaveStatusList[position].numberOfDays
-                )
-                alertDialog.setIcon(android.R.drawable.ic_dialog_alert)
-
-                alertDialog.setPositiveButton("Done") { dialogInterface, which ->
-                }
-                alertDialog.setNegativeButton("Back") { dialogInterface, which ->
-                    val dialog = builder.create()
-                    dialog.show()
-                }
-                alertDialog.create()
-                alertDialog.setCancelable(false)
-                alertDialog.show()
+                val leaveType = leaveStatusList[position].leaveType.toString()
+                val nod = leaveStatusList[position].numberOfDays.toString()
+                val startLeaveDate = leaveStatusList[position].startLeaveDate.toString()
+                val endLeaveDate = leaveStatusList[position].endLeaveDate.toString()
+                val url = leaveStatusList[position].uploadedImg.toString()
+                showDialog(context, leaveType, nod, startLeaveDate, endLeaveDate, url)
             }
             //When the manager clicks approve leave
             builder.setNegativeButton(
@@ -175,11 +169,40 @@ class LeaveApprovalAdapter(
                 alertDialog.setCancelable(false)
                 alertDialog.show()
             }
-
-
             builder.create()
             builder.show()
         }
+    }
+
+    /**
+     * Show Leave Status Dialog Box
+     */
+    private fun showDialog(context: Context, type: String, numberOfDays: String, startLeaveDate: String, endLeaveDate: String, url: String) {
+        val builder = androidx.appcompat.app.AlertDialog.Builder(context, R.style.CustomAlertDialog).create()
+        val view = LayoutInflater.from(context).inflate(R.layout.leave_detail, null)
+        val button =view.findViewById<Button>(R.id.buttonClose)
+        val leaveType =  view.findViewById<TextView>(R.id.textViewLT)
+        val nod =  view.findViewById<TextView>(R.id.textViewNOD)
+        val startDate =  view.findViewById<TextView>(R.id.textViewStartDate)
+        val endDate =  view.findViewById<TextView>(R.id.textViewEndDate)
+        val uploadedImg =  view.findViewById<ImageView>(R.id.imageViewDocument)
+        Log.d(TAG, "showDialog: Context: $context")
+        Log.d(TAG, "showDialog: type: $type")
+        Log.d(TAG, "showDialog: numberOfDays: $numberOfDays")
+        Log.d(TAG, "showDialog: startLeaveDate: $startLeaveDate")
+        Log.d(TAG, "showDialog: endLeaveDate: $endLeaveDate")
+        Log.d(TAG, "showDialog: url: $url")
+        Glide.with(context).load(url).into(uploadedImg)
+        leaveType.text = type
+        nod.text = "No. of Day/s: $numberOfDays"
+        startDate.text = "Start Date: $startLeaveDate"
+        endDate.text = "End Date: $endLeaveDate"
+        builder.setView(view)
+        button.setOnClickListener {
+            builder.dismiss()
+        }
+        builder.setCanceledOnTouchOutside(false)
+        builder.show()
 
     }
 

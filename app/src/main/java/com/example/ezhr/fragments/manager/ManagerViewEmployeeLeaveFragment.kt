@@ -23,8 +23,6 @@ class ManagerViewEmployeeLeaveFragment : Fragment() {
     private lateinit var todoRecyclerView: RecyclerView
     private lateinit var recyclerAdapter: ViewEmployeeLeaveAdapter
     private lateinit var recyclerLayoutManager: RecyclerView.LayoutManager
-    private var idList = ArrayList<String>()
-    private var fileNameList = ArrayList<String>()
     var userID = Firebase.auth.currentUser?.uid
 
     // assign the _binding variable initially to null and
@@ -55,7 +53,7 @@ class ManagerViewEmployeeLeaveFragment : Fragment() {
         todoRecyclerView = binding.todoItemRecyclerView
 
         recyclerLayoutManager = LinearLayoutManager(context)
-        recyclerAdapter = ViewEmployeeLeaveAdapter(leaveApplicationList, fileNameList, idList)
+        recyclerAdapter = ViewEmployeeLeaveAdapter(leaveApplicationList)
         todoRecyclerView.apply {
             setHasFixedSize(true)
             layoutManager = recyclerLayoutManager
@@ -69,23 +67,11 @@ class ManagerViewEmployeeLeaveFragment : Fragment() {
     }
 
     private fun getApprovedLeavesData() {
-        viewModel.idList.observe(viewLifecycleOwner) {
-            Log.d(TAG, it.toString())
-            idList = it as ArrayList<String>
-        }
-
-        viewModel.fileNameList.observe(viewLifecycleOwner) {
-            Log.d(TAG, "fileList: $it")
-            fileNameList = it as ArrayList<String>
-        }
-
         viewModel.leaveApplicationList.observe(viewLifecycleOwner) {
             Log.d(TAG , it.toString())
             leaveApplicationList = it as ArrayList<LeaveStatus>
             todoRecyclerView.adapter = ViewEmployeeLeaveAdapter(
-                leaveApplicationList,
-                fileNameList,
-                idList
+                leaveApplicationList
             )
         }
     }
