@@ -8,6 +8,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 
 class ManagerPendingLeaveViewModel : ViewModel() {
     var leaveApplicationList = MutableLiveData<List<LeaveStatus>>()
@@ -16,12 +17,16 @@ class ManagerPendingLeaveViewModel : ViewModel() {
     var idList = MutableLiveData<List<String>>()
     var newIdList = mutableListOf<String>()
 
+    var fileNameList = MutableLiveData<List<String>>()
+    var newFileNameList = mutableListOf<String>()
+
     init {
         getPendingLeavesData()
     }
 
     private fun getPendingLeavesData() {
-        val database = FirebaseDatabase.getInstance().getReference("Leaves")
+        val database = FirebaseDatabase.getInstance().getReference("leaves")
+        val firebaseStorageRef = FirebaseStorage.getInstance().reference
 
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -33,13 +38,21 @@ class ManagerPendingLeaveViewModel : ViewModel() {
                                 .getValue(String::class.java) == "Pending"
                         ) {
                             val leave = userSnapshot.getValue(LeaveStatus::class.java)
-                            val claimID = userSnapshot.key.toString()
-                            newIdList.add(claimID)
+                            val leaveID = userSnapshot.key.toString()
+                            newIdList.add(leaveID)
+                            val fileName = userSnapshot.child("uploadedImg").value
+                            newFileNameList.add(fileName.toString())
+                            if (leave != null) {
+                                firebaseStorageRef.child("leaves/$leaveID/$fileName").downloadUrl.addOnSuccessListener {
+                                    leave.uploadedImg = it.toString()
+                                }
+                            }
                             newLeaveApplicationList.add(leave!!)
                         }
                     }
                 }
                 idList.value = newIdList
+                fileNameList.value = newFileNameList
                 leaveApplicationList.value = newLeaveApplicationList
             }
 

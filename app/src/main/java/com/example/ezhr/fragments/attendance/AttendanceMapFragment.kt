@@ -6,8 +6,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -27,6 +29,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.maps.android.SphericalUtil
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
@@ -198,7 +201,19 @@ class AttendanceMapFragment : Fragment(), OnMapReadyCallback, EasyPermissions.Pe
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
         if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
             Log.d(TAG, "onPermissionsDenied: Permissions permanently denied")
-            AppSettingsDialog.Builder(this).build().show()
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Permissions Required")
+                .setMessage("This app may not work properly without the requested permissions. Open the app settings scrreen to modify app permissions.")
+                .setPositiveButton("Settings") { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", requireContext().packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create().show()
         } else {
             Log.d(TAG, "onPermissionsDenied: Permissions temporary denied")
             requestLocationPermission()
@@ -221,7 +236,7 @@ class AttendanceMapFragment : Fragment(), OnMapReadyCallback, EasyPermissions.Pe
             }
             EasyPermissions.requestPermissions(
                 this,
-                "You need to accept location permissions to use this app",
+                "Location permissions is need to clock in your attendance.",
                 REQUEST_CODE_LOCATION_PERMISSION,
                 android.Manifest.permission.ACCESS_COARSE_LOCATION,
                 android.Manifest.permission.ACCESS_FINE_LOCATION,

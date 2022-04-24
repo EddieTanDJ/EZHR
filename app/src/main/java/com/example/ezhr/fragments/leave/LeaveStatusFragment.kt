@@ -1,10 +1,15 @@
 package com.example.ezhr.fragments.leave
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,10 +19,13 @@ import com.example.ezhr.R
 import com.example.ezhr.adapters.LeaveStatusAdapter
 import com.example.ezhr.data.LeaveStatus
 import com.example.ezhr.databinding.FragmentLeaveStatusBinding
+import com.example.ezhr.databinding.LeaveDetailBinding
+import com.example.ezhr.fragments.manager.ManagerClaimsFragment
 import com.example.ezhr.viewmodel.LeaveStatusViewModel
 import com.example.ezhr.viewmodel.LeaveStatusViewModelFactory
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.NonDisposableHandle.parent
 
 val leaveStatusList = ArrayList<LeaveStatus>()
 
@@ -25,7 +33,7 @@ val leaveStatusList = ArrayList<LeaveStatus>()
 * This fragment is used to display the leave status of the user
  */
 class LeaveStatusFragment : Fragment() {
-
+    private val TAG = LeaveStatusFragment::class.simpleName
     lateinit var todoRecyclerView: RecyclerView
     lateinit var recyclerLayoutManager: RecyclerView.LayoutManager
     var leaveList = ArrayList<LeaveStatus>()
@@ -67,17 +75,17 @@ class LeaveStatusFragment : Fragment() {
 
     private fun observeData() {
         leaveStatusViewModel.idList.observe(viewLifecycleOwner) {
-            Log.i("data", it.toString())
+            Log.d(TAG, "idList: $it")
             idList = it as ArrayList<String>
         }
 
         leaveStatusViewModel.fileNameList.observe(viewLifecycleOwner) {
-            Log.i("data", it.toString())
+            Log.d(TAG, "fileList: $it")
             fileNameList = it as ArrayList<String>
         }
 
         leaveStatusViewModel.leaveList.observe(viewLifecycleOwner) {
-            Log.i("data", it.toString())
+            Log.d(TAG, "leaveList: $it")
             leaveList = it as ArrayList<LeaveStatus>
             var recyclerAdapter = LeaveStatusAdapter(it, idList, fileNameList)
             todoRecyclerView.apply {
@@ -92,6 +100,9 @@ class LeaveStatusFragment : Fragment() {
         val imageView = binding.leaveBalanceImage
         Glide.with(this).load(R.drawable.beach).into(imageView)
     }
+
+
+
 
     companion object {
         /**

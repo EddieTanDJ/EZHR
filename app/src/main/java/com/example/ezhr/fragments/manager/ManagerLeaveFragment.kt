@@ -92,7 +92,6 @@ class ManagerLeaveFragment : Fragment() {
         viewModel.leaveApplicationList.observe(viewLifecycleOwner) {
             Log.i("data", it.toString())
             leaveApplicationList = it as ArrayList<LeaveStatus>
-
             todoRecyclerView.adapter = LeaveApprovalAdapter(
                 leaveApplicationList,
                 idList

@@ -1,17 +1,25 @@
 package com.example.ezhr.fragments.leave
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.camera.core.impl.utils.ContextUtil
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
@@ -21,21 +29,23 @@ import com.example.ezhr.data.LeaveStatus
 import com.example.ezhr.databinding.FragmentApplyLeaveBinding
 import com.example.ezhr.viewmodel.ApplyLeaveViewModel
 import com.example.ezhr.viewmodel.ApplyLeaveViewModelFactory
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
+import pub.devrel.easypermissions.EasyPermissions
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 
 /**
  * Apply leave fragment
  */
-class ApplyLeaveFragment : Fragment() {
-    val TAG: String = "Leave Fragment"
+class ApplyLeaveFragment : Fragment(), EasyPermissions.PermissionCallbacks {
     private lateinit var database: DatabaseReference
 
     lateinit var startDate: String
@@ -59,7 +69,8 @@ class ApplyLeaveFragment : Fragment() {
     private val binding get() = _binding!!
 
     private var uploadedFileName = ""
-    private val GALLERY_REQUEST_CODE = 234
+    private val CAMERA_REQUEST_CODE = 100
+    private val GALLERY_REQUEST_CODE = 101
     private lateinit var uploadedFileURI: Uri
 
     lateinit var annualLeaveBalanceString: String
@@ -150,7 +161,7 @@ class ApplyLeaveFragment : Fragment() {
 
         //When user clicks on leave balance button
         leaveBalanceButton.setOnClickListener {
-            val builder = AlertDialog.Builder(context)
+            val builder = MaterialAlertDialogBuilder(requireContext())
             //set title for alert dialog
             builder.setTitle("Leave Balances")
             //set message for alert dialog
@@ -185,7 +196,7 @@ class ApplyLeaveFragment : Fragment() {
 
         //When user click on the add document button
         addDocumentBtn.setOnClickListener {
-            selectImageFromGallery()
+            selectImage()
         }
 
         cancelBtn.setOnClickListener {
@@ -215,7 +226,7 @@ class ApplyLeaveFragment : Fragment() {
                     if (numberOfDays == 0) {
                         numberOfDays = 1
                     }
-                    val builder = AlertDialog.Builder(context)
+                    val builder = MaterialAlertDialogBuilder(requireContext())
                     //set title for alert dialog
                     builder.setTitle(R.string.dialogTitle)
                     //set message for alert dialog
@@ -291,14 +302,10 @@ class ApplyLeaveFragment : Fragment() {
 
                     //performing cancel action
                     builder.setNeutralButton("Cancel") { dialogInterface, which ->
-                        Toast.makeText(
-                            context,
-                            "Submission unsuccessful",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        dialogInterface.dismiss()
                     }
                     // Create the AlertDialog
-                    val alertDialog: AlertDialog = builder.create()
+                    val alertDialog = builder.create()
                     // Set other dialog properties
                     alertDialog.setCancelable(false)
                     alertDialog.show()
@@ -346,6 +353,17 @@ class ApplyLeaveFragment : Fragment() {
         ) {
             // Get the Uri of data
             val fileUri = data.data
+            if (fileUri != null) {
+                setCurrentFileURI(fileUri)
+                markButtonDisabled(addDocumentBtn, fileUri)
+            }
+        }
+
+        if (requestCode == CAMERA_REQUEST_CODE
+            && resultCode == Activity.RESULT_OK
+        ) {
+            // Get the Uri of data
+            val fileUri = mUri
             if (fileUri != null) {
                 setCurrentFileURI(fileUri)
                 markButtonDisabled(addDocumentBtn, fileUri)
@@ -403,18 +421,111 @@ class ApplyLeaveFragment : Fragment() {
     /**
      * Open up image gallery
      */
-    private fun selectImageFromGallery() {
-        val intent = Intent()
-        intent.type = "image/*"
-        intent.action = Intent.ACTION_GET_CONTENT
-        startActivityForResult(
-            Intent.createChooser(
-                intent,
-                "Please select..."
-            ),
-            GALLERY_REQUEST_CODE
+    private fun selectImage() {
+        startDialog()
+    }
+
+    /**
+     * Allow user to choose between camera and gallery
+     */
+    @SuppressLint("RestrictedApi")
+    private fun startDialog() {
+        val myAlertDialog = MaterialAlertDialogBuilder(requireContext())
+        myAlertDialog.setTitle("Upload Pictures")
+        myAlertDialog.setMessage("How do you want to upload your picture?")
+        myAlertDialog.setPositiveButton("Gallery",
+            DialogInterface.OnClickListener { arg0, arg1 ->
+                val galleryIntent = Intent()
+                galleryIntent.type = "image/*"
+                galleryIntent.action = Intent.ACTION_GET_CONTENT
+                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE)
+            })
+        myAlertDialog.setNegativeButton("Camera",
+            DialogInterface.OnClickListener { arg0, arg1 ->
+                requestCameraPermission()
+            })
+        myAlertDialog.create().show()
+    }
+
+    /**
+     * Request Camera permission. If permission is granted, open camera, else ask for permission
+     */
+    private fun requestCameraPermission() {
+        if (hasCameraPermission(requireContext())) {
+            Log.d(TAG, "Request Permission: Camera permission granted")
+            setupCamera()
+            return
+        }
+        Log.d(TAG, "Request Permission: Camera permission not granted")
+        EasyPermissions.requestPermissions(
+            this,
+            "Camera permission is needed to take pictures.",
+            CAMERA_REQUEST_CODE,
+            android.Manifest.permission.CAMERA
         )
     }
+    /**
+     * Setup Camera
+     */
+    @SuppressLint("RestrictedApi")
+    private fun setupCamera() {
+        val capturedImage = File(ContextUtil.getApplicationContext(requireContext()).getExternalFilesDir(""), "Leave_${System.currentTimeMillis()}.jpg")
+        if(capturedImage.exists()) {
+            capturedImage.delete()
+        }
+        capturedImage.createNewFile()
+        mUri = if(Build.VERSION.SDK_INT >= 24){
+            FileProvider.getUriForFile(requireContext(), "com.example.ezhr.fileprovider", capturedImage)
+        } else {
+            Uri.fromFile(capturedImage)
+        }
+        Log.d(TAG, "mUri: ${mUri}.toString()")
+        val intent = Intent("android.media.action.IMAGE_CAPTURE")
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, mUri)
+        startActivityForResult(intent, CAMERA_REQUEST_CODE)
+    }
+
+
+    /**
+     * Check if permission is already granted
+     */
+
+    private fun hasCameraPermission(context: Context) = EasyPermissions.hasPermissions(
+        context,
+        Manifest.permission.CAMERA
+    )
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionsGranted: Permission granted")
+        setupCamera()
+    }
+
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        Log.d(TAG, "onPermissionDenied: Permission denied")
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Permissions Required")
+                .setMessage("This app may not work properly without the requested permissions. Open the app settings scrreen to modify app permissions.")
+                .setPositiveButton("Settings") { _, _ ->
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", requireContext().packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                }
+                .setNegativeButton("Cancel") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .create().show()
+        } else {
+            requestCameraPermission()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
 
     companion object {
         /**
@@ -423,6 +534,7 @@ class ApplyLeaveFragment : Fragment() {
          * @return A new instance of fragment.
          */
         private val TAG = ApplyLeaveFragment::class.java.simpleName
+        private var mUri: Uri? = null
         fun newInstance(): ApplyLeaveFragment {
             return ApplyLeaveFragment()
         }
