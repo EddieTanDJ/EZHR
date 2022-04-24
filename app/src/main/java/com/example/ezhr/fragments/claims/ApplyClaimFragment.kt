@@ -16,7 +16,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.impl.utils.ContextUtil.getApplicationContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -26,7 +25,6 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.ezhr.EZHRApp
 import com.example.ezhr.R
-import com.example.ezhr.TAG
 import com.example.ezhr.data.Claim
 import com.example.ezhr.databinding.FragmentApplyClaimBinding
 import com.example.ezhr.repository.ClaimApplicationManager
@@ -37,7 +35,6 @@ import com.example.ezhr.viewmodel.ClaimBalanceViewModel
 import com.example.ezhr.viewmodel.ClaimBalanceViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
@@ -49,7 +46,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import java.io.File
 import java.io.FileReader
