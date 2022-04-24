@@ -323,91 +323,10 @@ class ClaimEditFragment : Fragment()  , EasyPermissions.PermissionCallbacks {
         }
         EasyPermissions.requestPermissions(
             this,
-            "Camera permission is needed to take pictures.",
-            CAMERA_REQUEST_CODE,
-            android.Manifest.permission.CAMERA
-        )
-        myAlertDialog.setTitle("Upload Pictures")
-        myAlertDialog.setMessage("How do you want to upload your picture?")
-        myAlertDialog.setPositiveButton("Gallery",
-            DialogInterface.OnClickListener { arg0, arg1 ->
-                val galleryIntent = Intent()
-                galleryIntent.type = "image/*"
-                galleryIntent.action = Intent.ACTION_GET_CONTENT
-                startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE)
-            })
-        myAlertDialog.setNegativeButton("Camera",
-            DialogInterface.OnClickListener { arg0, arg1 ->
-                requestCameraPermission()
-            })
-        myAlertDialog.show()
-    }
-
-    /**
-     * Request Camera permission. If permission is granted, open camera, else ask for permission
-     */
-    private fun requestCameraPermission() {
-        if (hasCameraPermission(requireContext())) {
-            setupCamera()
-            return
-        }
-        EasyPermissions.requestPermissions(
-            this,
             "You need to accept camera permissions to use this app",
             CAMERA_REQUEST_CODE,
             android.Manifest.permission.CAMERA
         )
-    }
-
-
-    /**
-     * Setup Camera
-     */
-    @SuppressLint("RestrictedApi")
-    private fun setupCamera() {
-        val capturedImage = File(ContextUtil.getApplicationContext(requireContext()).getExternalFilesDir(""), "Claims_${System.currentTimeMillis()}.jpg")
-        if(capturedImage.exists()) {
-            capturedImage.delete()
-        }
-        capturedImage.createNewFile()
-        mUri = if(Build.VERSION.SDK_INT >= 24){
-            FileProvider.getUriForFile(requireContext(), "com.example.ezhr.fileprovider", capturedImage)
-        } else {
-            Uri.fromFile(capturedImage)
-        }
-        Log.d("TAG", "mUri: ${mUri}.toString()")
-        val intent = Intent("android.media.action.IMAGE_CAPTURE")
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, mUri)
-        startActivityForResult(intent, CAMERA_REQUEST_CODE)
-    }
-
-
-    /**
-     * Check if permission is already granted
-     */
-
-    private fun hasCameraPermission(context: Context) = EasyPermissions.hasPermissions(
-        context,
-        Manifest.permission.CAMERA
-    )
-
-    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-        Log.d(TAG, "onPermissionsGranted: Permission granted")
-        setupCamera()
-    }
-
-    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-        Log.d(TAG, "onPermissionDenied: Permission denied")
-        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-            AppSettingsDialog.Builder(this).build().show()
-        } else {
-            requestCameraPermission()
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
 
