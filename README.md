@@ -16,7 +16,7 @@ Nicholas Bingei
 Ter Kai Siang
 
 ## How to use :
-1. Clone or download the project
+1. Clone or download the project or install the APK under release
 2. Ensure you have Android Studios installed on your machine
 3. Import the project to Android studios
 4. Insert the following line in the local.properties file.
