@@ -10,17 +10,9 @@
         android:id="@+id/homeFragment"
         android:name="com.example.ezhr.fragments.HomeFragment"
         android:label="Home"
-        tools:layout="@layout/fragment_home">
-        <action
-            android:id="@+id/action_homeFragment_to_attendanceFragment"
-            app:destination="@id/attendanceFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right"
-            app:popUpTo="@id/homeFragment"
-            app:popUpToSaveState="true" />
+        tools:layout="@layout/fragment_home"><![CDATA[
         />
+        ]]>
         <action
             android:id="@+id/action_homeFragment_to_balanceLeaveFragment"
             app:destination="@id/balanceLeaveFragment"
@@ -94,80 +86,7 @@
     </fragment>
 
     <!--    Attendance Fragment-->
-    <fragment
-        android:id="@+id/attendanceFragment"
-        android:name="com.example.ezhr.fragments.AttendanceFragment"
-        android:label="Attendance"
-        tools:layout="@layout/fragment_attendance">
-        <action
-            android:id="@+id/action_attendanceFragment_to_attendanceHistoryFragment"
-            app:destination="@id/attendanceHistoryFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_attendanceFragment_to_attendanceMap"
-            app:destination="@id/attendanceMap"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
 
-    <!--    Claims Fragment -->
-    <fragment
-        android:id="@+id/claimsFragment"
-        android:name="com.example.ezhr.fragments.ClaimsFragment"
-        android:label="Claims"
-        tools:layout="@layout/fragment_claims">
-        <action
-            android:id="@+id/action_claimsFragment_to_applyClaimFragment"
-            app:destination="@id/applyClaimFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_claimsFragment_to_claimsStatusFragment"
-            app:destination="@id/claimsStatusFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_claimsFragment_to_claimsBalanceFragment"
-            app:destination="@id/claimsBalanceFragment" />
-    </fragment>
-
-    <!--    Leave Fragment -->
-    <fragment
-        android:id="@+id/leaveFragment"
-        android:name="com.example.ezhr.fragments.LeaveFragment"
-        android:label="Leaves"
-        tools:layout="@layout/fragment_leave">
-        <action
-            android:id="@+id/action_leaveFragment_to_applyLeaveFragment"
-            app:destination="@id/applyLeaveFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_leaveFragment_to_leaveStatusFragment"
-            app:destination="@id/leaveStatusFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_leaveFragment_to_balanceLeaveFragment"
-            app:destination="@id/balanceLeaveFragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
 
     <!--    Profile Fragment -->
     <fragment
@@ -200,12 +119,13 @@
         android:label="Apply Leave"
         tools:layout="@layout/fragment_apply_leave">
         <action
-            android:id="@+id/action_applyLeaveFragment_to_leaveFragment"
-            app:destination="@id/leaveFragment"
+            android:id="@+id/action_applyLeaveFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:popExitAnim="@anim/slide_out_right"
+            />
     </fragment>
 
     <!--    Leave Status Fragment -->

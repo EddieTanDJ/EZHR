@@ -281,7 +281,7 @@ class ApplyLeaveFragment : Fragment(), EasyPermissions.PermissionCallbacks {
                                             "Leave Application Submitted.",
                                             Toast.LENGTH_SHORT
                                         ).show()
-                                        navController.navigate(R.id.action_applyLeaveFragment_to_leaveFragment)
+                                        navController.navigate(R.id.action_applyLeaveFragment_to_homeFragment)
                                     } else {
                                         Toast.makeText(
                                             context,

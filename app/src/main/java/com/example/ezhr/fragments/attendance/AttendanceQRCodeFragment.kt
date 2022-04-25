@@ -120,11 +120,12 @@ class AttendanceQRCodeFragment : Fragment() {
     // QR Code function. Registers the launcher and result handler
     private val barcodeLauncher =
         registerForActivityResult(ScanContract()) { result: ScanIntentResult ->
+            Log.d(TAG, "QR Code result: ${result.contents}")
             if (result.contents == null) {
                 Toast.makeText(context, "No QR code detected", Toast.LENGTH_LONG).show()
 
             } else if (result.contents == "AttendanceKey") {
-
+                Log.d(TAG, "HIT")
                 val attendanceManager = UserAttendanceManager(requireContext())
                 val attendanceTaken: Boolean
                 // Check if the user has already taken attendance
@@ -132,9 +133,8 @@ class AttendanceQRCodeFragment : Fragment() {
                 {
                     attendanceTaken = attendanceManager.attendanceStatusFlow.first()
                 }
-
                 val attendanceTime = stf.format(Date()).toString()
-
+                Log.d(TAG, "Attendance Taken: $attendanceTaken")
                 if (attendanceTaken) {
                     viewModel.uploadAttendanceCheckOut(
                         attendanceTime
@@ -146,15 +146,11 @@ class AttendanceQRCodeFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                     Log.d(TAG, "HIT")
-
-                    //TODO: Decide whether to keep or remove
                     //Clears Preference Datastore when clock out.
                     CoroutineScope(Dispatchers.IO).launch { attendanceManager.clearData() }
-                } else if (result.contents == "AttendanceKey") {
+                }
+                else if (result.contents == "AttendanceKey") {
                     val checkoutStatus = "-"
-                    CoroutineScope(Dispatchers.IO).launch { attendanceManager.clearData() }
-                } else if (result.contents == "AttendanceKey") {
-                    val checkoutStatus = "     -"
                     val user = viewModelUser.fetchUserData().observe(this) {
                         Log.d(
                             TAG, " User: " +
@@ -172,7 +168,6 @@ class AttendanceQRCodeFragment : Fragment() {
                             )
                         )
                     }
-
                     // Check in Successful
                     Toast.makeText(
                         context,
